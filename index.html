@@ -725,26 +725,24 @@
             }, 3000);
         }
         
-// Check for new messages
-async function refreshMessages(forceRefresh = false) {
-    // Get latest messages timestamp
-    const currentTimestamp = getLatestMessageTimestamp();
-    
-    // If we have new messages or force refresh
-    if ((currentTimestamp > lastCheckedTimestamp && currentTimestamp > 0) || forceRefresh) {
-        // Load all messages
-        const hasNewMessages = await loadMessages(true);
-        
-        // Update last checked timestamp only if we actually loaded messages
-        if (hasNewMessages) {
-            lastCheckedTimestamp = currentTimestamp;
+        // Check for new messages
+        async function refreshMessages(forceRefresh = false) {
+            // Get latest messages timestamp
+            const currentTimestamp = getLatestMessageTimestamp();
+            
+            // If we have new messages or force refresh
+            if (currentTimestamp > lastCheckedTimestamp || forceRefresh) {
+                // Load all messages
+                await loadMessages(true);
+                
+                // Update last checked timestamp
+                lastCheckedTimestamp = currentTimestamp;
+                
+                return true;
+            }
+            
+            return false;
         }
-        
-        return hasNewMessages;
-    }
-    
-    return false;
-}
         
         function getLatestMessageTimestamp() {
             try {
