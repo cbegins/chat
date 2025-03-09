@@ -3,61 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Chat</title>
+    <title>SecureChat</title>
     <style>
         :root {
-            --primary-color: #4361ee;
-            --primary-light: #4895ef;
-            --primary-dark: #3f37c9;
-            --secondary-color: #4cc9f0;
-            --bubble-me: #e0fbfc;
-            --bubble-other: #f0f0f0;
-            --background: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --light-gray: #e9ecef;
+            --primary-color: #4a6fa5;
+            --primary-hover: #3a5a8c;
+            --secondary-color: #6c757d;
+            --bubble-me: #e5f1ff;
+            --bubble-other: #f8f9fa;
+            --light-gray: #f4f6f8;
+            --border-color: #e1e5eb;
+            --text-primary: #2d3748;
+            --text-secondary: #626e7f;
+            --danger: #dc3545;
+            --success: #28a745;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            background: var(--background);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ef 100%);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 10px;
-            color: var(--text-color);
+            padding: 20px;
+            color: var(--text-primary);
         }
 
         #chat-container {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            width: 450px;
+            background-color: #fff;
+            border-radius: 12px;
+            width: 480px;
             max-width: 100%;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            height: 90vh;
+            height: 85vh;
             max-height: 750px;
             position: relative;
             overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
         .chat-header {
-            padding: 15px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--primary-color);
             color: white;
-            border-radius: 16px 16px 0 0;
+            border-radius: 12px 12px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .chat-header h1 {
@@ -66,23 +68,22 @@
             margin: 0;
         }
         
-        .user-info {
+        .header-info {
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
         .avatar {
-            width: 32px;
-            height: 32px;
-            background: white;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
+            background-color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary-color);
             font-weight: bold;
-            font-size: 14px;
+            color: var(--primary-color);
         }
         
         .header-controls {
@@ -93,7 +94,7 @@
         .header-btn {
             background: rgba(255, 255, 255, 0.2);
             border: none;
-            border-radius: 50%;
+            border-radius: 8px;
             width: 32px;
             height: 32px;
             display: flex;
@@ -107,18 +108,18 @@
         
         .header-btn:hover {
             background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
+            transform: translateY(-2px);
         }
 
         #messages {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 12px;
             scroll-behavior: smooth;
-            background-color: var(--background);
+            background-color: var(--light-gray);
         }
 
         .message {
@@ -126,21 +127,21 @@
             flex-direction: column;
             max-width: 75%;
             word-break: break-word;
-            animation: fade-in 0.3s ease-out;
+            animation: fadeIn 0.3s ease-out;
         }
-
-        @keyframes fade-in {
+        
+        @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .message .bubble {
-            padding: 12px 14px;
-            border-radius: 18px;
+            padding: 12px 15px;
+            border-radius: 16px;
             background: var(--bubble-other);
             position: relative;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .message.me {
@@ -149,7 +150,6 @@
 
         .message.me .bubble {
             background: var(--bubble-me);
-            color: #2c3e50;
             border-bottom-right-radius: 4px;
         }
         
@@ -157,26 +157,21 @@
             border-bottom-left-radius: 4px;
         }
 
-        .message .time {
+        .message .meta {
+            display: flex;
+            justify-content: space-between;
             font-size: 11px;
-            color: #888;
+            color: var(--text-secondary);
             margin-top: 4px;
-            align-self: flex-end;
+            padding: 0 2px;
         }
         
-        .message.me .time {
-            align-self: flex-end;
+        .message .user {
+            font-weight: 500;
         }
         
-        .message.other .time {
-            align-self: flex-start;
-        }
-        
-        .sender-name {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--primary-color);
+        .message.me .meta {
+            flex-direction: row-reverse;
         }
 
         .file-message {
@@ -195,39 +190,39 @@
         }
 
         .file-name {
-            font-weight: 600;
+            font-weight: 500;
             margin-bottom: 3px;
-            word-break: break-all;
+            color: var(--primary-color);
         }
 
         .file-size {
             font-size: 12px;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 10px;
+            max-width: 220px;
+            max-height: 220px;
+            border-radius: 8px;
             cursor: pointer;
             transition: transform 0.2s;
         }
         
         .image-preview:hover {
-            transform: scale(0.98);
+            transform: scale(1.02);
         }
 
         .input-area {
             padding: 15px;
-            border-top: 1px solid var(--light-gray);
+            border-top: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            background-color: var(--card-bg);
+            background-color: white;
         }
 
         .message-controls {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 10px;
         }
 
@@ -237,18 +232,18 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            color: #555;
+            color: var(--text-secondary);
             font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 36px;
-            transition: transform 0.2s;
+            transition: all 0.2s;
         }
 
         .control-btn:hover {
-            background: #e0e0e0;
-            transform: translateY(-2px);
+            background: var(--border-color);
+            color: var(--text-primary);
         }
 
         .input-container {
@@ -260,26 +255,26 @@
         #message-input {
             flex: 1;
             padding: 12px 15px;
-            border-radius: 24px;
-            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
             font-size: 15px;
             resize: none;
             max-height: 120px;
             min-height: 45px;
             outline: none;
             transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            font-family: inherit;
+            background-color: var(--light-gray);
         }
 
         #message-input:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.15);
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(74, 111, 165, 0.1);
         }
 
         #send-btn {
             padding: 0;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background-color: var(--primary-color);
             color: #fff;
             border: none;
             border-radius: 50%;
@@ -290,12 +285,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s;
         }
 
         #send-btn:hover {
-            transform: scale(1.05);
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         #send-icon {
@@ -311,112 +307,155 @@
             display: none;
             position: absolute;
             bottom: 100px;
-            right: 15px;
-            background-color: white;
-            border: 1px solid var(--light-gray);
-            border-radius: 12px;
-            padding: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
+            gap: 10px;
             z-index: 10;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            max-width: 300px;
+            max-width: 320px;
         }
 
         .emoji {
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 5px;
             border-radius: 8px;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.2s;
         }
 
         .emoji:hover {
             background: var(--light-gray);
-            transform: scale(1.2);
+            transform: scale(1.1);
         }
         
-        .login-overlay {
+        .auth-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(5px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
         
-        .login-container {
+        .auth-container {
             background: white;
             padding: 30px;
-            border-radius: 16px;
-            width: 320px;
+            border-radius: 12px;
+            width: 350px;
             max-width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
         
-        .login-container h2 {
+        .auth-container h2 {
             margin-bottom: 20px;
             color: var(--primary-color);
+            font-weight: 600;
             text-align: center;
         }
         
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 32px;
         }
         
-        .form-group {
+        .auth-tabs {
             display: flex;
-            flex-direction: column;
-            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
         
-        .form-group label {
-            font-weight: 600;
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .auth-input-group {
+            margin-bottom: 15px;
+        }
+        
+        .auth-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-primary);
             font-size: 14px;
         }
         
-        .login-container input {
+        .auth-input {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid var(--light-gray);
+            margin-bottom: 5px;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 15px;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
         
-        .login-container input:focus {
+        .auth-input:focus {
+            border-color: var(--primary-color);
             outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.15);
+            box-shadow: 0 2px 8px rgba(74, 111, 165, 0.1);
         }
         
-        .login-container button {
+        .auth-button {
             width: 100%;
             padding: 12px;
-            margin-top: 10px;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background: var(--primary-color);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-weight: 500;
             font-size: 16px;
-            font-weight: 600;
             transition: all 0.2s;
+            margin-top: 5px;
         }
         
-        .login-container button:hover {
+        .auth-button:hover {
+            background: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .error-message {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .switch-account {
+            display: inline-block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .modal {
@@ -426,7 +465,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(5px);
             z-index: 100;
             justify-content: center;
             align-items: center;
@@ -434,13 +474,13 @@
         
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 16px;
+            padding: 25px;
+            border-radius: 12px;
             max-width: 90%;
             max-height: 90%;
             overflow: auto;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
         
         .close-modal {
@@ -449,13 +489,12 @@
             right: 20px;
             font-size: 24px;
             cursor: pointer;
-            color: #333;
-            z-index: 10;
-            transition: transform 0.2s;
+            color: var(--text-secondary);
+            transition: all 0.2s;
         }
         
         .close-modal:hover {
-            transform: scale(1.1);
+            color: var(--text-primary);
         }
         
         .fullsize-image {
@@ -464,58 +503,121 @@
             border-radius: 8px;
         }
         
-        /* Mobile optimizations */
-        @media (max-width: 480px) {
-            #chat-container {
-                height: 100vh;
-                max-height: none;
-                border-radius: 0;
-                width: 100%;
-            }
-            
-            .chat-header {
-                border-radius: 0;
-            }
-            
-            .message {
-                max-width: 85%;
-            }
-            
-            .emoji-picker {
-                grid-template-columns: repeat(5, 1fr);
-                right: 10px;
-                left: auto;
-            }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success);
+            margin-right: 6px;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            z-index: 1;
+            border-radius: 8px;
+            margin-top: 5px;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .dropdown-item {
+            padding: 12px 15px;
+            text-decoration: none;
+            display: block;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 0;
+        }
+        
+        .show {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div id="login-overlay" class="login-overlay">
-        <div class="login-container">
-            <h2>Login to Chat</h2>
-            <div class="login-form">
-                <div class="form-group">
-                    <label for="username-input">Username</label>
-                    <input type="text" id="username-input" placeholder="Vishu or Tirup">
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-container">
+            <div class="auth-logo">💬</div>
+            <h2>SecureChat</h2>
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="login-tab">Login</div>
+                <div class="auth-tab" id="register-tab">Register</div>
+            </div>
+            
+            <div id="login-form">
+                <div class="auth-input-group">
+                    <label class="auth-label" for="login-username">Username</label>
+                    <input type="text" class="auth-input" id="login-username" placeholder="Enter your username">
                 </div>
-                <div class="form-group">
-                    <label for="password-input">Password</label>
-                    <input type="password" id="password-input" placeholder="Enter password">
+                <div class="auth-input-group">
+                    <label class="auth-label" for="login-password">Password</label>
+                    <input type="password" class="auth-input" id="login-password" placeholder="Enter your password">
+                    <div id="login-error" class="error-message"></div>
                 </div>
-                <button id="login-submit">Login</button>
+                <button id="login-button" class="auth-button">Login</button>
+                <div id="switch-accounts" class="switch-account">Switch Accounts</div>
+            </div>
+            
+            <div id="register-form" style="display: none;">
+                <div class="auth-input-group">
+                    <label class="auth-label" for="register-username">Username</label>
+                    <input type="text" class="auth-input" id="register-username" placeholder="Choose a username">
+                </div>
+                <div class="auth-input-group">
+                    <label class="auth-label" for="register-password">Password</label>
+                    <input type="password" class="auth-input" id="register-password" placeholder="Choose a password">
+                </div>
+                <div class="auth-input-group">
+                    <label class="auth-label" for="register-confirm">Confirm Password</label>
+                    <input type="password" class="auth-input" id="register-confirm" placeholder="Confirm your password">
+                    <div id="register-error" class="error-message"></div>
+                </div>
+                <button id="register-button" class="auth-button">Create Account</button>
             </div>
         </div>
     </div>
     
     <div id="chat-container">
         <div class="chat-header">
-            <div class="user-info">
-                <div class="avatar" id="user-avatar"></div>
-                <h1 id="chat-title">Private Chat</h1>
+            <div class="header-info">
+                <div class="avatar" id="user-avatar">A</div>
+                <div>
+                    <h1>SecureChat</h1>
+                    <div style="font-size: 12px; opacity: 0.8;"><span class="status-dot"></span>Online</div>
+                </div>
             </div>
             <div class="header-controls">
-                <button class="header-btn" id="clear-chat" title="Clear Chat">🗑️</button>
-                <button class="header-btn" id="logout-btn" title="Logout">🚪</button>
+                <button class="header-btn" id="switch-user" title="Switch User">👤</button>
+                <div class="dropdown">
+                    <button class="header-btn" id="menu-btn" title="Menu">⋮</button>
+                    <div class="dropdown-content" id="dropdown-menu">
+                        <div class="dropdown-item" id="clear-chat">Clear Chat</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" id="change-password">Change Password</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" id="logout">Logout</div>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="messages"></div>
@@ -546,14 +648,20 @@
             <span class="emoji">😜</span>
             <span class="emoji">😇</span>
             <span class="emoji">🤔</span>
+            <span class="emoji">😴</span>
+            <span class="emoji">😭</span>
             <span class="emoji">👍</span>
             <span class="emoji">❤️</span>
+            <span class="emoji">💯</span>
             <span class="emoji">🔥</span>
-            <span class="emoji">🎉</span>
             <span class="emoji">👋</span>
+            <span class="emoji">👏</span>
             <span class="emoji">🙌</span>
             <span class="emoji">💪</span>
-            <span class="emoji">👏</span>
+            <span class="emoji">🎉</span>
+            <span class="emoji">⭐</span>
+            <span class="emoji">💡</span>
+            <span class="emoji">🚀</span>
         </div>
     </div>
     
@@ -566,12 +674,24 @@
 
     <script>
         // DOM elements
-        const loginOverlay = document.getElementById('login-overlay');
-        const usernameInput = document.getElementById('username-input');
-        const passwordInput = document.getElementById('password-input');
-        const loginSubmit = document.getElementById('login-submit');
+        const authOverlay = document.getElementById('auth-overlay');
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginButton = document.getElementById('login-button');
+        const registerButton = document.getElementById('register-button');
+        const loginUsername = document.getElementById('login-username');
+        const loginPassword = document.getElementById('login-password');
+        const registerUsername = document.getElementById('register-username');
+        const registerPassword = document.getElementById('register-password');
+        const registerConfirm = document.getElementById('register-confirm');
+        const loginError = document.getElementById('login-error');
+        const registerError = document.getElementById('register-error');
+        const switchAccounts = document.getElementById('switch-accounts');
         const userAvatar = document.getElementById('user-avatar');
-        const chatTitle = document.getElementById('chat-title');
+        const switchUserBtn = document.getElementById('switch-user');
+        
         const messagesContainer = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
@@ -580,72 +700,169 @@
         const fileInput = document.getElementById('file-input');
         const fileBtn = document.getElementById('file-btn');
         const clearChatBtn = document.getElementById('clear-chat');
-        const logoutBtn = document.getElementById('logout-btn');
+        const changePasswordBtn = document.getElementById('change-password');
         const imageModal = document.getElementById('image-modal');
         const modalImage = document.getElementById('modal-image');
         const closeModal = document.querySelector('.close-modal');
+        const logoutBtn = document.getElementById('logout');
+        const menuBtn = document.getElementById('menu-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
         
-        // User accounts
-        const users = {
-            'vishu': 'vishu',
-            'tirup': 'tirup'
-        };
+        // User accounts system
+        let accounts = JSON.parse(localStorage.getItem('chatAccounts')) || {};
+        let currentUser = localStorage.getItem('currentChatUser') || '';
+        let accountsList = [];
+        let savedMessages = {};
         
-        // Current user
-        let currentUser = localStorage.getItem('chatCurrentUser') || '';
-        
-        // Login handling
-        loginSubmit.addEventListener('click', login);
-        
-        usernameInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
+        // Initialize accounts from localStorage
+        function initializeAccounts() {
+            if (Object.keys(accounts).length === 0) {
+                // Create demo accounts if none exist
+                accounts = {
+                    'user1': 'password1',
+                    'user2': 'password2'
+                };
+                localStorage.setItem('chatAccounts', JSON.stringify(accounts));
             }
-        });
-        
-        passwordInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-        
-        function login() {
-            const username = usernameInput.value.trim().toLowerCase();
-            const password = passwordInput.value;
             
-            if (users[username] && password === users[username]) {
-                loginOverlay.style.display = 'none';
-                currentUser = username;
-                localStorage.setItem('chatCurrentUser', username);
-                
-                // Update UI for current user
-                updateUserUI();
-                
-                // Load saved messages
-                loadMessages();
-                
-                // Focus on message input
-                messageInput.focus();
+            updateAccountsList();
+        }
+        
+        function updateAccountsList() {
+            accountsList = Object.keys(accounts);
+        }
+        
+        // Tab switching
+        loginTab.addEventListener('click', function() {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+        });
+        
+        registerTab.addEventListener('click', function() {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerForm.style.display = 'block';
+            loginForm.style.display = 'none';
+        });
+        
+        // Login functionality
+        loginButton.addEventListener('click', function() {
+            const username = loginUsername.value.trim();
+            const password = loginPassword.value;
+            
+            if (username === '' || password === '') {
+                showLoginError('Please enter both username and password');
+                return;
+            }
+            
+            if (accounts[username] === password) {
+                login(username);
             } else {
-                alert('Invalid username or password!');
-                passwordInput.value = '';
+                showLoginError('Invalid username or password');
             }
+        });
+        
+        function showLoginError(message) {
+            loginError.textContent = message;
+            loginError.style.display = 'block';
+            setTimeout(() => {
+                loginError.style.display = 'none';
+            }, 3000);
         }
         
-        function updateUserUI() {
-            // Set avatar
-            userAvatar.textContent = currentUser.charAt(0).toUpperCase();
+        // Register functionality
+        registerButton.addEventListener('click', function() {
+            const username = registerUsername.value.trim();
+            const password = registerPassword.value;
+            const confirm = registerConfirm.value;
             
-            // Update chat title
-            chatTitle.textContent = `Hello, ${currentUser.charAt(0).toUpperCase() + currentUser.slice(1)}`;
+            if (username === '' || password === '' || confirm === '') {
+                showRegisterError('Please fill in all fields');
+                return;
+            }
+            
+            if (password !== confirm) {
+                showRegisterError('Passwords do not match');
+                return;
+            }
+            
+            if (accounts[username]) {
+                showRegisterError('Username already exists');
+                return;
+            }
+            
+            // Create new account
+            accounts[username] = password;
+            localStorage.setItem('chatAccounts', JSON.stringify(accounts));
+            updateAccountsList();
+            
+            // Auto login after registration
+            login(username);
+        });
+        
+        function showRegisterError(message) {
+            registerError.textContent = message;
+            registerError.style.display = 'block';
+            setTimeout(() => {
+                registerError.style.display = 'none';
+            }, 3000);
         }
         
-        // Logout
+        // Login user
+        function login(username) {
+            currentUser = username;
+            localStorage.setItem('currentChatUser', username);
+            authOverlay.style.display = 'none';
+            
+            // Set user avatar initial
+            userAvatar.textContent = username.charAt(0).toUpperCase();
+            
+            // Load messages for this user
+            loadMessages();
+            
+            // Focus on message input
+            messageInput.focus();
+        }
+        
+        // Switch accounts button
+        switchAccounts.addEventListener('click', function() {
+            // Just show the login form again
+            loginTab.click();
+            loginUsername.value = '';
+            loginPassword.value = '';
+        });
+        
+        // Switch user button
+        switchUserBtn.addEventListener('click', function() {
+            saveMessages(); // Save current messages
+            currentUser = '';
+            localStorage.removeItem('currentChatUser');
+            authOverlay.style.display = 'flex';
+            loginTab.click();
+        });
+        
+        // Logout button
         logoutBtn.addEventListener('click', function() {
-            localStorage.removeItem('chatCurrentUser');
-            loginOverlay.style.display = 'flex';
-            usernameInput.value = '';
-            passwordInput.value = '';
+            saveMessages(); // Save current messages
+            currentUser = '';
+            localStorage.removeItem('currentChatUser');
+            authOverlay.style.display = 'flex';
+            loginTab.click();
+            dropdownMenu.classList.remove('show');
+        });
+        
+        // Menu dropdown
+        menuBtn.addEventListener('click', function() {
+            dropdownMenu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            if (!menuBtn.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
         });
 
         // Auto-resize textarea
@@ -673,7 +890,7 @@
             const message = messageInput.value.trim();
             
             if (message !== '') {
-                addMessage(message, currentUser);
+                addMessage(message, 'me');
                 messageInput.value = '';
                 messageInput.style.height = '45px';
                 saveMessages();
@@ -683,18 +900,10 @@
         // Add a message to the chat
         function addMessage(content, sender, time = new Date(), isFile = false, fileData = null) {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender === currentUser ? 'me' : 'other');
+            messageDiv.classList.add('message', sender);
             
             const bubble = document.createElement('div');
             bubble.classList.add('bubble');
-            
-            // Add sender name for messages from others
-            if (sender !== currentUser) {
-                const senderNameElem = document.createElement('div');
-                senderNameElem.classList.add('sender-name');
-                senderNameElem.textContent = sender.charAt(0).toUpperCase() + sender.slice(1);
-                bubble.appendChild(senderNameElem);
-            }
             
             if (isFile) {
                 if (fileData.type.startsWith('image/')) {
@@ -725,7 +934,7 @@
                     fileName.classList.add('file-name');
                     fileName.textContent = fileData.name;
                     
-                    const fileSize = document.createElement('div');
+const fileSize = document.createElement('div');
                     fileSize.classList.add('file-size');
                     fileSize.textContent = fileData.size;
                     
@@ -735,152 +944,85 @@
                     fileMessage.appendChild(fileIcon);
                     fileMessage.appendChild(fileInfo);
                     
-                    const fileLink = document.createElement('a');
-                    fileLink.href = fileData.content;
-                    fileLink.download = fileData.name;
-                    fileLink.appendChild(fileMessage);
-                    
-                    bubble.appendChild(fileLink);
+                    bubble.appendChild(fileMessage);
                 }
             } else {
-                // Regular text message - handle line breaks and URLs
-                const formattedContent = formatMessage(content);
-                bubble.innerHTML += formattedContent;
+                bubble.textContent = content;
             }
             
             messageDiv.appendChild(bubble);
             
+            const meta = document.createElement('div');
+            meta.classList.add('meta');
+            
             const timeElement = document.createElement('div');
             timeElement.classList.add('time');
+            timeElement.textContent = formatTime(time);
             
-            // Format the time
-            let timeString;
-            if (typeof time === 'string') {
-                timeString = time;
-            } else {
-                const hours = time.getHours().toString().padStart(2, '0');
-                const minutes = time.getMinutes().toString().padStart(2, '0');
-                timeString = `${hours}:${minutes}`;
-            }
+            const userElement = document.createElement('div');
+            userElement.classList.add('user');
+            userElement.textContent = sender === 'me' ? 'You' : 'Bot';
             
-            timeElement.textContent = timeString;
-            messageDiv.appendChild(timeElement);
+            meta.appendChild(timeElement);
+            meta.appendChild(userElement);
             
+            messageDiv.appendChild(meta);
             messagesContainer.appendChild(messageDiv);
             
-            // Scroll to bottom
+            // Scroll to latest message
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         
-        // Format message text
-        function formatMessage(text) {
-            // Convert line breaks to <br>
-            let formatted = text.replace(/\n/g, '<br>');
-            
-            // Make URLs clickable
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
-            formatted = formatted.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
-            
-            return formatted;
+        // Format time for messages
+        function formatTime(date) {
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
         }
         
-        // Format file size
+        // File handling
+        fileBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                
+                // Simple validation
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    alert('File too large. Maximum size is 5MB.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const fileData = {
+                        name: file.name,
+                        size: formatFileSize(file.size),
+                        type: file.type,
+                        content: event.target.result
+                    };
+                    
+                    addMessage('', 'me', new Date(), true, fileData);
+                    saveMessages();
+                };
+                
+                if (file.type.startsWith('image/')) {
+                    reader.readAsDataURL(file);
+                } else {
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+        
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' bytes';
             else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
             else return (bytes / 1048576).toFixed(1) + ' MB';
         }
         
-        // Save and load messages
-        function saveMessages() {
-            const messages = [];
-            
-            document.querySelectorAll('.message').forEach(msg => {
-                const sender = msg.classList.contains('me') ? currentUser : 
-                    msg.querySelector('.sender-name') ? 
-                    msg.querySelector('.sender-name').textContent.toLowerCase() : 
-                    (currentUser === 'vishu' ? 'tirup' : 'vishu');
-                
-                const bubble = msg.querySelector('.bubble');
-                const time = msg.querySelector('.time').textContent;
-                
-                // Check if it's a file message
-                const fileLink = bubble.querySelector('a');
-                
-                if (fileLink && (bubble.querySelector('.file-message') || bubble.querySelector('.image-preview'))) {
-                    // It's a file message
-                    let fileData = {
-                        content: fileLink.href,
-                        name: 'File'
-                    };
-                    
-                    if (bubble.querySelector('.image-preview')) {
-                        // Image file
-                        const img = bubble.querySelector('.image-preview');
-                        fileData.type = 'image/';
-                        fileData.name = img.alt;
-                    } else {
-                        // Other file
-                        fileData.type = 'file/';
-                        fileData.name = bubble.querySelector('.file-name').textContent;
-                        fileData.size = bubble.querySelector('.file-size').textContent;
-                    }
-                    
-                    messages.push({
-                        sender,
-                        content: '',
-                        time,
-                        isFile: true,
-                        fileData
-                    });
-                } else {
-                    // Regular text message - need to exclude sender name from content
-                    let content = bubble.innerHTML;
-                    const senderName = bubble.querySelector('.sender-name');
-                    if (senderName) {
-                        content = content.replace(senderName.outerHTML, '');
-                    }
-                    
-                    messages.push({
-                        sender,
-                        content,
-                        time,
-                        isFile: false
-                    });
-                }
-            });
-            
-            localStorage.setItem('chatMessages', JSON.stringify(messages));
-        }
-        
-        function loadMessages() {
-            const savedMessages = localStorage.getItem('chatMessages');
-            
-            if (savedMessages) {
-                const messages = JSON.parse(savedMessages);
-                messagesContainer.innerHTML = '';
-                
-                messages.forEach(msg => {
-                    if (msg.isFile) {
-                        addMessage('', msg.sender, msg.time, true, msg.fileData);
-                    } else {
-                        addMessage(msg.content, msg.sender, msg.time, false);
-                    }
-                });
-                
-                // Scroll to bottom
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        }
-        
-        // Clear chat
-        clearChatBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to clear all messages?')) {
-                messagesContainer.innerHTML = '';
-                localStorage.removeItem('chatMessages');
-            }
-        });
-
         // Emoji picker
         emojiBtn.addEventListener('click', function() {
             emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
@@ -893,49 +1035,14 @@
             }
         });
         
-        // Add emoji to message input
-        document.querySelectorAll('.emoji').forEach(function(emoji) {
+        // Add emoji to message
+        const emojis = document.querySelectorAll('.emoji');
+        emojis.forEach(emoji => {
             emoji.addEventListener('click', function() {
-                messageInput.value += emoji.textContent;
+                messageInput.value += this.textContent;
                 messageInput.focus();
-                
-                // Trigger the input event to resize the textarea
-                const event = new Event('input', { bubbles: true });
-                messageInput.dispatchEvent(event);
-                
-                // Hide emoji picker after selection
                 emojiPicker.style.display = 'none';
             });
-        });
-
-        // File handling
-        fileBtn.addEventListener('click', function() {
-            fileInput.click();
-        });
-        
-        fileInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            
-            if (file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const fileData = {
-                        name: file.name,
-                        size: formatFileSize(file.size),
-                        type: file.type,
-                        content: e.target.result
-                    };
-                    
-                    addMessage('', currentUser, new Date(), true, fileData);
-                    saveMessages();
-                };
-                
-                reader.readAsDataURL(file);
-            }
-            
-            // Reset file input
-            this.value = '';
         });
         
         // Image modal
@@ -948,33 +1055,83 @@
             imageModal.style.display = 'none';
         });
         
+        // Close modal when clicking outside
         imageModal.addEventListener('click', function(e) {
             if (e.target === imageModal) {
                 imageModal.style.display = 'none';
             }
         });
         
-// Check if user is already logged in
-            if (currentUser && users[currentUser]) {
-                loginOverlay.style.display = 'none';
-                updateUserUI();
-                loadMessages();
-            } else {
-                loginOverlay.style.display = 'flex';
+        // Clear chat
+        clearChatBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all messages?')) {
+                messagesContainer.innerHTML = '';
+                saveMessages();
+                dropdownMenu.classList.remove('show');
+            }
+        });
+        
+        // Change password
+        changePasswordBtn.addEventListener('click', function() {
+            const newPassword = prompt('Enter new password:');
+            
+            if (newPassword) {
+                accounts[currentUser] = newPassword;
+                localStorage.setItem('chatAccounts', JSON.stringify(accounts));
+                alert('Password changed successfully');
             }
             
-            // Add some initial messages if the chat is empty
-            setTimeout(() => {
-                if (messagesContainer.children.length === 0) {
-                    if (currentUser === 'vishu') {
-                        addMessage('Hi Vishu! Welcome to our private chat.', 'tirup');
-                    } else if (currentUser === 'tirup') {
-                        addMessage('Hi Tirup! Welcome to our private chat.', 'vishu');
-                    }
-                    saveMessages();
-                }
-            }, 100);
+            dropdownMenu.classList.remove('show');
         });
+        
+        // Save messages to localStorage
+        function saveMessages() {
+            if (!currentUser) return;
+            
+            savedMessages[currentUser] = messagesContainer.innerHTML;
+            localStorage.setItem('chatMessages', JSON.stringify(savedMessages));
+        }
+        
+        // Load messages from localStorage
+        function loadMessages() {
+            const storedMessages = JSON.parse(localStorage.getItem('chatMessages')) || {};
+            savedMessages = storedMessages;
+            
+            if (savedMessages[currentUser]) {
+                messagesContainer.innerHTML = savedMessages[currentUser];
+            } else {
+                // Add welcome message for new users
+                addMessage('Welcome to SecureChat! Your messages are saved automatically and only visible to you.', 'other');
+            }
+        }
+        
+        // Initialize auto-responder for demo
+        messageInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey && this.value.trim() !== '') {
+                // Auto respond after 1 second
+                setTimeout(() => {
+                    const responses = [
+                        "Hi there! This is a demo chat application.",
+                        "Your messages are saved locally in your browser.",
+                        "You can try all features including file sharing and emojis.",
+                        "Try switching between different user accounts!",
+                        "This is a secure messaging platform with end-to-end encryption simulation.",
+                        "All messages are stored locally and not on any server."
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, 'other');
+                    saveMessages();
+                }, 1000);
+            }
+        });
+        
+        // Initialize application
+        initializeAccounts();
+        
+        if (currentUser && accounts[currentUser]) {
+            login(currentUser);
+        }
     </script>
 </body>
 </html>
