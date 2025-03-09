@@ -6,8 +6,8 @@
     <title>Secure Chat</title>
     <style>
         :root {
-            --primary-color: #3498db;
-            --primary-hover: #2980b9;
+            --primary-color: #3e5c76;
+            --primary-hover: #2c3e50;
             --secondary-color: #f5f5f5;
             --text-color: #333;
             --text-secondary: #666;
@@ -101,7 +101,6 @@
             background-color: #fbfbfb;
         }
 
-        /* Scrollbar styling */
         #messages::-webkit-scrollbar {
             width: 6px;
         }
@@ -263,7 +262,7 @@
 
         #message-input:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+            box-shadow: 0 0 0 2px rgba(62, 92, 118, 0.15);
         }
 
         #send-btn {
@@ -295,39 +294,6 @@
         #file-input {
             display: none;
         }
-
-        .emoji-picker {
-            display: none;
-            position: absolute;
-            bottom: 100px;
-            right: 16px;
-            background-color: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px;
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            z-index: 10;
-            box-shadow: var(--shadow);
-            max-width: 300px;
-        }
-
-        .emoji {
-            font-size: 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-            border-radius: 6px;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .emoji:hover {
-            background: #f0f0f0;
-            transform: scale(1.1);
-        }
         
         .password-overlay {
             position: fixed;
@@ -335,7 +301,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(41, 128, 185, 0.92), rgba(44, 62, 80, 0.92));
+            background: linear-gradient(135deg, rgba(62, 92, 118, 0.92), rgba(44, 62, 80, 0.92));
             display: flex;
             justify-content: center;
             align-items: center;
@@ -372,7 +338,7 @@
         
         .password-container input:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+            box-shadow: 0 0 0 2px rgba(62, 92, 118, 0.15);
             outline: none;
         }
         
@@ -440,6 +406,22 @@
             border-radius: 6px;
         }
         
+        .user-avatar {
+            font-size: 10px;
+            margin-left: 5px;
+            font-weight: bold;
+            margin-bottom: 2px;
+            color: #555;
+        }
+        
+        .message.me .user-avatar {
+            align-self: flex-end;
+        }
+        
+        .message.other .user-avatar {
+            align-self: flex-start;
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             #chat-container {
@@ -460,14 +442,6 @@
             .message {
                 max-width: 85%;
             }
-            
-            .emoji-picker {
-                right: 10px;
-                left: auto;
-                transform: none;
-                max-width: 250px;
-                grid-template-columns: repeat(5, 1fr);
-            }
         }
         
         @media (max-width: 480px) {
@@ -486,11 +460,6 @@
             #message-input {
                 padding: 10px 14px;
             }
-            
-            .emoji-picker {
-                grid-template-columns: repeat(4, 1fr);
-                max-width: 200px;
-            }
         }
     </style>
 </head>
@@ -508,13 +477,12 @@
             <h1>Secure Chat</h1>
             <div class="header-controls">
                 <button class="header-btn" id="clear-chat" title="Clear Chat">🗑️</button>
-                <button class="header-btn" id="change-password" title="Change Password">🔑</button>
+                <button class="header-btn" id="logout-btn" title="Logout">📤</button>
             </div>
         </div>
         <div id="messages"></div>
         <div class="input-area">
             <div class="message-controls">
-                <button class="control-btn" id="emoji-btn" title="Emojis">😊</button>
                 <button class="control-btn" id="file-btn" title="Send File">📎</button>
             </div>
             <div class="input-container">
@@ -527,32 +495,6 @@
                 </button>
                 <input type="file" id="file-input" />
             </div>
-        </div>
-        <div id="emoji-picker" class="emoji-picker" style="display: none;">
-            <span class="emoji">😀</span>
-            <span class="emoji">😂</span>
-            <span class="emoji">😍</span>
-            <span class="emoji">😎</span>
-            <span class="emoji">😊</span>
-            <span class="emoji">🥰</span>
-            <span class="emoji">😘</span>
-            <span class="emoji">😜</span>
-            <span class="emoji">😇</span>
-            <span class="emoji">🤔</span>
-            <span class="emoji">😴</span>
-            <span class="emoji">😭</span>
-            <span class="emoji">👍</span>
-            <span class="emoji">❤️</span>
-            <span class="emoji">💔</span>
-            <span class="emoji">💯</span>
-            <span class="emoji">🔥</span>
-            <span class="emoji">💋</span>
-            <span class="emoji">🙌</span>
-            <span class="emoji">💪</span>
-            <span class="emoji">🎉</span>
-            <span class="emoji">🌹</span>
-            <span class="emoji">💰</span>
-            <span class="emoji">🍕</span>
         </div>
     </div>
     
@@ -571,18 +513,23 @@
         const messagesContainer = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
-        const emojiBtn = document.getElementById('emoji-btn');
-        const emojiPicker = document.getElementById('emoji-picker');
         const fileInput = document.getElementById('file-input');
         const fileBtn = document.getElementById('file-btn');
         const clearChatBtn = document.getElementById('clear-chat');
-        const changePasswordBtn = document.getElementById('change-password');
+        const logoutBtn = document.getElementById('logout-btn');
         const imageModal = document.getElementById('image-modal');
         const modalImage = document.getElementById('modal-image');
         const closeModal = document.querySelector('.close-modal');
         
+        // User variables
+        let currentUser = '';
+        let currentUserName = '';
+        
         // Password handling
-        let correctPassword = localStorage.getItem('chatPassword') || 'yourpassword';
+        const userPasswords = {
+            'Tirup@123': 'User1',
+            'Vishu@123': 'User2'
+        };
         
         passwordSubmit.addEventListener('click', function() {
             checkPassword();
@@ -597,10 +544,17 @@
         function checkPassword() {
             const enteredPassword = passwordInput.value;
             
-            if (enteredPassword === correctPassword) {
+            if (userPasswords[enteredPassword]) {
+                currentUser = enteredPassword;
+                currentUserName = userPasswords[enteredPassword];
                 passwordOverlay.style.display = 'none';
+                
                 // Load saved messages
                 loadMessages();
+                
+                // Update UI for this user
+                document.querySelector('.chat-header h1').textContent = `Secure Chat (${currentUserName})`;
+                
                 // Focus on message input
                 messageInput.focus();
             } else {
@@ -610,21 +564,14 @@
             }
         }
         
-        changePasswordBtn.addEventListener('click', function() {
-            const currentPassword = prompt('Enter current password:');
-            
-            if (currentPassword === correctPassword) {
-                const newPassword = prompt('Enter new password:');
-                
-                if (newPassword && newPassword.trim() !== '') {
-                    correctPassword = newPassword;
-                    localStorage.setItem('chatPassword', newPassword);
-                    alert('Password updated successfully!');
-                } else {
-                    alert('Password cannot be empty!');
-                }
-            } else {
-                alert('Incorrect current password!');
+        // Handle logout
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                currentUser = '';
+                currentUserName = '';
+                passwordInput.value = '';
+                passwordOverlay.style.display = 'flex';
+                messagesContainer.innerHTML = '';
             }
         });
 
@@ -653,7 +600,7 @@
             const message = messageInput.value.trim();
             
             if (message !== '') {
-                addMessage(message, 'me');
+                addMessage(message, 'me', new Date(), false, null, currentUserName);
                 messageInput.value = '';
                 messageInput.style.height = '45px';
                 saveMessages();
@@ -662,9 +609,16 @@
         }
         
         // Add a message to the chat
-        function addMessage(content, sender, time = new Date(), isFile = false, fileData = null) {
+        function addMessage(content, sender, time = new Date(), isFile = false, fileData = null, userName = '') {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender);
+            
+            if (userName) {
+                const userAvatar = document.createElement('div');
+                userAvatar.classList.add('user-avatar');
+                userAvatar.textContent = userName;
+                messageDiv.appendChild(userAvatar);
+            }
             
             const bubble = document.createElement('div');
             bubble.classList.add('bubble');
@@ -772,6 +726,8 @@
                 const sender = msg.classList.contains('me') ? 'me' : 'other';
                 const bubble = msg.querySelector('.bubble');
                 const time = msg.querySelector('.time').textContent;
+                const userAvatar = msg.querySelector('.user-avatar');
+                const userName = userAvatar ? userAvatar.textContent : '';
                 
                 // Check if it's a file message
                 const fileLink = bubble.querySelector('a');
@@ -800,7 +756,8 @@
                         content: '',
                         time,
                         isFile: true,
-                        fileData
+                        fileData,
+                        userName
                     });
                 } else {
                     // Regular text message
@@ -808,7 +765,8 @@
                         sender,
                         content: bubble.innerHTML,
                         time,
-                        isFile: false
+                        isFile: false,
+                        userName
                     });
                 }
             });
@@ -823,12 +781,28 @@
                 const messages = JSON.parse(savedMessages);
                 
                 messages.forEach(msg => {
+                    // Determine whether this message is from the current user
+                    let senderType;
+                    
+                    if (msg.userName === currentUserName) {
+                        senderType = 'me';
+                    } else {
+                        senderType = 'other';
+                    }
+                    
                     if (msg.isFile) {
-                        addMessage('', msg.sender, msg.time, true, msg.fileData);
+                        addMessage('', senderType, msg.time, true, msg.fileData, msg.userName);
                     } else {
                         // We're storing the formatted HTML content
                         const messageDiv = document.createElement('div');
-                        messageDiv.classList.add('message', msg.sender);
+                        messageDiv.classList.add('message', senderType);
+                        
+                        if (msg.userName) {
+                            const userAvatar = document.createElement('div');
+                            userAvatar.classList.add('user-avatar');
+                            userAvatar.textContent = msg.userName;
+                            messageDiv.appendChild(userAvatar);
+                        }
                         
                         const bubble = document.createElement('div');
                         bubble.classList.add('bubble');
@@ -858,30 +832,6 @@
             }
         });
 
-        // Emoji picker
-        emojiBtn.addEventListener('click', function() {
-            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
-        });
-        
-        // Close emoji picker when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-                emojiPicker.style.display = 'none';
-            }
-        });
-        
-        // Add emoji to message input
-        document.querySelectorAll('.emoji').forEach(function(emoji) {
-            emoji.addEventListener('click', function() {
-                messageInput.value += emoji.textContent;
-                messageInput.focus();
-                
-                // Trigger the input event to resize the textarea
-                const event = new Event('input', { bubbles: true });
-                messageInput.dispatchEvent(event);
-            });
-        });
-
         // File handling
         fileBtn.addEventListener('click', function() {
             fileInput.click();
@@ -901,7 +851,7 @@
                         content: e.target.result
                     };
                     
-                    addMessage('', 'me', new Date(), true, fileData);
+                    addMessage('', 'me', new Date(), true, fileData, currentUserName);
                     saveMessages();
                 };
                 
@@ -932,26 +882,6 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 imageModal.style.display = 'none';
-                emojiPicker.style.display = 'none';
-            }
-        });
-        
-        // Detect mobile devices and adjust UI
-        function isMobileDevice() {
-            return (window.innerWidth <= 768 || window.innerHeight <= 600 || 
-                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-        }
-        
-        if (isMobileDevice()) {
-            document.body.classList.add('mobile');
-        }
-        
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (isMobileDevice()) {
-                document.body.classList.add('mobile');
-            } else {
-                document.body.classList.remove('mobile');
             }
         });
     </script>
