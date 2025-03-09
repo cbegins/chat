@@ -3,100 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Chat</title>
+    <title>Private Chat</title>
     <style>
         :root {
-            --primary-color: #3a86ff;
-            --primary-hover: #2a75ed;
-            --secondary-color: #8338ec;
-            --bubble-me: #e0f2ff;
+            --primary-color: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary-color: #4cc9f0;
+            --bubble-me: #e0fbfc;
             --bubble-other: #f0f0f0;
-            --background: #f8fafc;
-            --card: #ffffff;
-            --text: #333333;
-            --text-light: #666666;
-            --border: #e1e5eb;
-        }
-
-        [data-theme="dark"] {
-            --primary-color: #3a86ff;
-            --primary-hover: #2a75ed;
-            --secondary-color: #8338ec;
-            --bubble-me: #1e293b;
-            --bubble-other: #334155;
-            --background: #0f172a;
-            --card: #1e293b;
-            --text: #e2e8f0;
-            --text-light: #94a3b8;
-            --border: #334155;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --light-gray: #e9ecef;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
         body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
             background: var(--background);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            color: var(--text);
-            transition: background 0.3s ease;
+            padding: 10px;
+            color: var(--text-color);
         }
 
         #chat-container {
-            background-color: var(--card);
+            background-color: var(--card-bg);
             border-radius: 16px;
             width: 450px;
             max-width: 100%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            height: 85vh;
-            max-height: 700px;
+            height: 90vh;
+            max-height: 750px;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
         }
 
         .chat-header {
             padding: 15px 20px;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             border-radius: 16px 16px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
+        .chat-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
         .user-info {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
+        
         .avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
+            background: white;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
             font-weight: bold;
-            font-size: 16px;
-        }
-
-        .chat-header h1 {
-            font-size: 18px;
-            margin: 0;
-            font-weight: 600;
+            font-size: 14px;
         }
         
         .header-controls {
@@ -105,9 +91,9 @@
         }
         
         .header-btn {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            border-radius: 8px;
+            border-radius: 50%;
             width: 32px;
             height: 32px;
             display: flex;
@@ -116,21 +102,23 @@
             cursor: pointer;
             color: white;
             font-size: 16px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
         
         .header-btn:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
         }
 
         #messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             scroll-behavior: smooth;
+            background-color: var(--background);
         }
 
         .message {
@@ -138,22 +126,21 @@
             flex-direction: column;
             max-width: 75%;
             word-break: break-word;
-            animation: fadeIn 0.3s ease;
+            animation: fade-in 0.3s ease-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes fade-in {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .message .bubble {
-            padding: 12px 16px;
+            padding: 12px 14px;
             border-radius: 18px;
             background: var(--bubble-other);
             position: relative;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            color: var(--text);
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .message.me {
@@ -162,6 +149,7 @@
 
         .message.me .bubble {
             background: var(--bubble-me);
+            color: #2c3e50;
             border-bottom-right-radius: 4px;
         }
         
@@ -169,27 +157,32 @@
             border-bottom-left-radius: 4px;
         }
 
-        .message-info {
-            display: flex;
-            justify-content: space-between;
+        .message .time {
             font-size: 11px;
-            color: var(--text-light);
+            color: #888;
             margin-top: 4px;
-            padding: 0 4px;
+            align-self: flex-end;
         }
         
-        .message.me .message-info {
-            flex-direction: row-reverse;
+        .message.me .time {
+            align-self: flex-end;
+        }
+        
+        .message.other .time {
+            align-self: flex-start;
         }
         
         .sender-name {
+            font-size: 12px;
             font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--primary-color);
         }
 
         .file-message {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .file-icon {
@@ -204,101 +197,104 @@
         .file-name {
             font-weight: 600;
             margin-bottom: 3px;
+            word-break: break-all;
         }
 
         .file-size {
             font-size: 12px;
-            color: var(--text-light);
+            color: #666;
         }
 
         .image-preview {
-            max-width: 200px;
+            max-width: 100%;
             max-height: 200px;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: transform 0.2s;
         }
         
         .image-preview:hover {
-            transform: scale(1.02);
+            transform: scale(0.98);
         }
 
         .input-area {
             padding: 15px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--light-gray);
             display: flex;
             flex-direction: column;
-            background-color: var(--card);
+            background-color: var(--card-bg);
         }
 
         .message-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 10px;
         }
 
         .control-btn {
             padding: 8px;
-            background: rgba(0, 0, 0, 0.05);
+            background: var(--light-gray);
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            color: var(--text);
+            color: #555;
             font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 36px;
-            transition: background 0.2s;
+            transition: transform 0.2s;
         }
 
         .control-btn:hover {
-            background: rgba(0, 0, 0, 0.1);
+            background: #e0e0e0;
+            transform: translateY(-2px);
         }
 
         .input-container {
             display: flex;
             gap: 10px;
+            align-items: flex-end;
         }
 
         #message-input {
             flex: 1;
-            padding: 14px 18px;
+            padding: 12px 15px;
             border-radius: 24px;
-            border: 1px solid var(--border);
+            border: 1px solid var(--light-gray);
             font-size: 15px;
             resize: none;
             max-height: 120px;
-            min-height: 50px;
+            min-height: 45px;
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background-color: var(--card);
-            color: var(--text);
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-family: inherit;
         }
 
         #message-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.1);
+            border-color: var(--primary-light);
+            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.15);
         }
 
         #send-btn {
             padding: 0;
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: #fff;
             border: none;
             border-radius: 50%;
             cursor: pointer;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s, transform 0.2s;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         #send-btn:hover {
-            background-color: var(--primary-hover);
             transform: scale(1.05);
         }
 
@@ -315,33 +311,33 @@
             display: none;
             position: absolute;
             bottom: 100px;
-            left: 20px;
-            background-color: var(--card);
-            border: 1px solid var(--border);
+            right: 15px;
+            background-color: white;
+            border: 1px solid var(--light-gray);
             border-radius: 12px;
-            padding: 12px;
+            padding: 10px;
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+            gap: 8px;
             z-index: 10;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-width: 320px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            max-width: 300px;
         }
 
         .emoji {
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 6px;
+            padding: 5px;
             border-radius: 8px;
-            transition: background 0.2s, transform 0.2s;
+            transition: transform 0.2s;
         }
 
         .emoji:hover {
-            background: rgba(0, 0, 0, 0.05);
-            transform: scale(1.1);
+            background: var(--light-gray);
+            transform: scale(1.2);
         }
         
         .login-overlay {
@@ -350,7 +346,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: rgba(0,0,0,0.85);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -358,189 +354,69 @@
         }
         
         .login-container {
-            background: var(--card);
+            background: white;
             padding: 30px;
             border-radius: 16px;
             width: 320px;
             max-width: 90%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            animation: fadeInUp 0.5s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .login-header {
-            text-align: center;
+        .login-container h2 {
             margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
         }
         
-        .login-header h2 {
-            color: var(--text);
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .login-header p {
-            color: var(--text-light);
-            font-size: 14px;
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
         
         .form-group label {
-            display: block;
-            margin-bottom: 6px;
             font-weight: 600;
             font-size: 14px;
-            color: var(--text);
         }
         
-        .form-group input {
+        .login-container input {
             width: 100%;
-            padding: 14px 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
             font-size: 15px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background-color: var(--card);
-            color: var(--text);
+            transition: border-color 0.2s;
         }
         
-        .form-group input:focus {
+        .login-container input:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.1);
+            border-color: var(--primary-light);
+            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.15);
         }
         
-        .login-btn {
+        .login-container button {
             width: 100%;
-            padding: 14px;
-            background: var(--primary-color);
+            padding: 12px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.2s;
         }
         
-        .login-btn:hover {
-            background: var(--primary-hover);
-        }
-        
-        .login-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .account-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .account-option {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s, transform 0.1s;
-        }
-        
-        .account-option.selected {
-            border-color: var(--primary-color);
-            background: rgba(58, 134, 255, 0.05);
-        }
-        
-        .account-option:hover {
-            border-color: var(--primary-color);
+        .login-container button:hover {
             transform: translateY(-2px);
-        }
-        
-        .account-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-            margin: 0 auto 8px;
-        }
-        
-        .account-name {
-            font-weight: 600;
-            color: var(--text);
-        }
-        
-        .theme-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 15px 0 5px;
-        }
-        
-        .theme-toggle span {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-right: 8px;
-        }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-        
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-            background-color: var(--primary-color);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(20px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
         }
         
         .modal {
@@ -550,37 +426,36 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             z-index: 100;
             justify-content: center;
             align-items: center;
         }
         
         .modal-content {
-            background: var(--card);
+            background: white;
             padding: 20px;
             border-radius: 16px;
             max-width: 90%;
             max-height: 90%;
             overflow: auto;
             position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
         .close-modal {
             position: absolute;
             top: 15px;
             right: 20px;
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
-            color: var(--text);
+            color: #333;
             z-index: 10;
-            background: var(--card);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: transform 0.2s;
+        }
+        
+        .close-modal:hover {
+            transform: scale(1.1);
         }
         
         .fullsize-image {
@@ -589,151 +464,45 @@
             border-radius: 8px;
         }
         
-        .date-divider {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-            color: var(--text-light);
-            font-size: 12px;
-            text-align: center;
-        }
-        
-        .date-divider::before,
-        .date-divider::after {
-            content: "";
-            flex: 1;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .date-divider::before {
-            margin-right: 10px;
-        }
-        
-        .date-divider::after {
-            margin-left: 10px;
-        }
-        
-        .typing-indicator {
-            display: none;
-            align-self: flex-start;
-            background: var(--bubble-other);
-            padding: 12px 16px;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            margin-top: 5px;
-            color: var(--text);
-            font-size: 14px;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .typing-indicator span {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background: var(--text-light);
-            border-radius: 50%;
-            margin: 0 1px;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-        
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @keyframes typing {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-        
+        /* Mobile optimizations */
         @media (max-width: 480px) {
             #chat-container {
                 height: 100vh;
                 max-height: none;
-                width: 100%;
                 border-radius: 0;
+                width: 100%;
             }
             
             .chat-header {
                 border-radius: 0;
             }
             
-            body {
-                padding: 0;
-            }
-            
             .message {
                 max-width: 85%;
             }
-        }
-        
-        #logout-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            border-radius: 8px;
-            padding: 6px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 14px;
-            transition: background 0.2s;
-            margin-left: 8px;
-        }
-        
-        #logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .encrypted-badge {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            background: rgba(0, 0, 0, 0.07);
-            border-radius: 12px;
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 8px;
+            
+            .emoji-picker {
+                grid-template-columns: repeat(5, 1fr);
+                right: 10px;
+                left: auto;
+            }
         }
     </style>
 </head>
 <body>
     <div id="login-overlay" class="login-overlay">
         <div class="login-container">
-            <div class="login-header">
-                <h2>Secure Chat</h2>
-                <p>Select an account to continue</p>
-            </div>
-            
-            <div class="account-selector">
-                <div class="account-option" data-username="Vishu">
-                    <div class="account-avatar">V</div>
-                    <div class="account-name">Vishu</div>
+            <h2>Login to Chat</h2>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="username-input">Username</label>
+                    <input type="text" id="username-input" placeholder="Vishu or Tirup">
                 </div>
-                <div class="account-option" data-username="Tirup">
-                    <div class="account-avatar">T</div>
-                    <div class="account-name">Tirup</div>
+                <div class="form-group">
+                    <label for="password-input">Password</label>
+                    <input type="password" id="password-input" placeholder="Enter password">
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="password-input">Password</label>
-                <input type="password" id="password-input" placeholder="Enter your password">
-            </div>
-            
-            <button id="login-btn" class="login-btn">Login</button>
-            
-            <div class="theme-toggle">
-                <span>Dark Mode</span>
-                <label class="switch">
-                    <input type="checkbox" id="theme-switch">
-                    <span class="slider"></span>
-                </label>
+                <button id="login-submit">Login</button>
             </div>
         </div>
     </div>
@@ -742,20 +511,14 @@
         <div class="chat-header">
             <div class="user-info">
                 <div class="avatar" id="user-avatar"></div>
-                <h1 id="header-title">Secure Chat</h1>
+                <h1 id="chat-title">Private Chat</h1>
             </div>
             <div class="header-controls">
-                <button class="header-btn" id="toggle-theme" title="Toggle Theme">🌙</button>
                 <button class="header-btn" id="clear-chat" title="Clear Chat">🗑️</button>
-                <button id="logout-btn">Logout</button>
+                <button class="header-btn" id="logout-btn" title="Logout">🚪</button>
             </div>
         </div>
         <div id="messages"></div>
-        <div class="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
         <div class="input-area">
             <div class="message-controls">
                 <button class="control-btn" id="emoji-btn" title="Emojis">😊</button>
@@ -771,10 +534,6 @@
                 </button>
                 <input type="file" id="file-input" />
             </div>
-            <div class="encrypted-badge">
-                <span>🔒</span>
-                <span>End-to-end encrypted</span>
-            </div>
         </div>
         <div id="emoji-picker" class="emoji-picker" style="display: none;">
             <span class="emoji">😀</span>
@@ -787,20 +546,14 @@
             <span class="emoji">😜</span>
             <span class="emoji">😇</span>
             <span class="emoji">🤔</span>
-            <span class="emoji">😴</span>
-            <span class="emoji">😭</span>
             <span class="emoji">👍</span>
             <span class="emoji">❤️</span>
-            <span class="emoji">💔</span>
-            <span class="emoji">💯</span>
             <span class="emoji">🔥</span>
-            <span class="emoji">💋</span>
+            <span class="emoji">🎉</span>
+            <span class="emoji">👋</span>
             <span class="emoji">🙌</span>
             <span class="emoji">💪</span>
-            <span class="emoji">🎉</span>
-            <span class="emoji">🌹</span>
-            <span class="emoji">💰</span>
-            <span class="emoji">🍕</span>
+            <span class="emoji">👏</span>
         </div>
     </div>
     
@@ -812,52 +565,13 @@
     </div>
 
     <script>
-        // Prevent viewing source code
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-            if (
-                e.keyCode === 123 || 
-                (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
-                (e.ctrlKey && e.shiftKey && e.keyCode === 74) || 
-                (e.ctrlKey && e.keyCode === 85)
-            ) {
-                return false;
-            }
-        };
-        
-        // Simple encryption/decryption function
-        function encrypt(text, key) {
-            let result = '';
-            for (let i = 0; i < text.length; i++) {
-                const charCode = text.charCodeAt(i);
-                const keyChar = key.charCodeAt(i % key.length);
-                result += String.fromCharCode(charCode ^ keyChar);
-            }
-            return btoa(result); // Base64 encode for safe storage
-        }
-        
-        function decrypt(encoded, key) {
-            try {
-                const text = atob(encoded); // Base64 decode
-                let result = '';
-                for (let i = 0; i < text.length; i++) {
-                    const charCode = text.charCodeAt(i);
-                    const keyChar = key.charCodeAt(i % key.length);
-                    result += String.fromCharCode(charCode ^ keyChar);
-                }
-                return result;
-            } catch (e) {
-                console.error("Decryption failed");
-                return "Unable to decrypt message";
-            }
-        }
-
         // DOM elements
         const loginOverlay = document.getElementById('login-overlay');
+        const usernameInput = document.getElementById('username-input');
         const passwordInput = document.getElementById('password-input');
-        const loginBtn = document.getElementById('login-btn');
-        const accountOptions = document.querySelectorAll('.account-option');
+        const loginSubmit = document.getElementById('login-submit');
+        const userAvatar = document.getElementById('user-avatar');
+        const chatTitle = document.getElementById('chat-title');
         const messagesContainer = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
@@ -870,449 +584,397 @@
         const imageModal = document.getElementById('image-modal');
         const modalImage = document.getElementById('modal-image');
         const closeModal = document.querySelector('.close-modal');
-        const headerTitle = document.getElementById('header-title');
-        const userAvatar = document.getElementById('user-avatar');
-        const themeSwitch = document.getElementById('theme-switch');
-        const toggleTheme = document.getElementById('toggle-theme');
-        const typingIndicator = document.querySelector('.typing-indicator');
         
-        // State variables
-        let currentUser = '';
-        let encryptionKey = '';
-        const accounts = {
-            'Vishu': 'Vishu',
-            'Tirup': 'Tirup'
+        // User accounts
+        const users = {
+            'vishu': 'vishu',
+            'tirup': 'tirup'
         };
         
-        // Theme handling
-        function initTheme() {
-            const savedTheme = localStorage.getItem('chatTheme');
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                themeSwitch.checked = true;
-                toggleTheme.textContent = '☀️';
-            } else {
-                document.body.removeAttribute('data-theme');
-                themeSwitch.checked = false;
-                toggleTheme.textContent = '🌙';
-            }
-        }
-        
-        themeSwitch.addEventListener('change', function() {
-            toggleThemeMode();
-        });
-        
-        toggleTheme.addEventListener('click', function() {
-            toggleThemeMode();
-        });
-        
-        function toggleThemeMode() {
-            if (document.body.getAttribute('data-theme') === 'dark') {
-                document.body.removeAttribute('data-theme');
-                localStorage.setItem('chatTheme', 'light');
-                themeSwitch.checked = false;
-                toggleTheme.textContent = '🌙';
-            } else {
-                document.body.setAttribute('data-theme', 'dark');
-                localStorage.setItem('chatTheme', 'dark');
-                themeSwitch.checked = true;
-                toggleTheme.textContent = '☀️';
-            }
-        }
-        
-        // Initialize theme
-        initTheme();
-        
-        // Account selection
-        accountOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                accountOptions.forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-                currentUser = this.getAttribute('data-username');
-                passwordInput.focus();
-            });
-        });
+        // Current user
+        let currentUser = localStorage.getItem('chatCurrentUser') || '';
         
         // Login handling
-        passwordInput.addEventListener('keypress', function(e) {
+        loginSubmit.addEventListener('click', login);
+        
+        usernameInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                handleLogin();
+                login();
             }
         });
         
-        loginBtn.addEventListener('click', handleLogin);
-        
-        function handleLogin() {
-            if (!currentUser) {
-                alert('Please select an account');
-                return;
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
             }
-            
+        });
+        
+        function login() {
+            const username = usernameInput.value.trim().toLowerCase();
             const password = passwordInput.value;
             
-            if (accounts[currentUser] === password) {
-                encryptionKey = password; // Use password as encryption key
+            if (users[username] && password === users[username]) {
                 loginOverlay.style.display = 'none';
+                currentUser = username;
+                localStorage.setItem('chatCurrentUser', username);
                 
-                // Set up user info
-                headerTitle.textContent = `Chat as ${currentUser}`;
-                userAvatar.textContent = currentUser.charAt(0);
+                // Update UI for current user
+                updateUserUI();
                 
-// Load saved messages
-function loadMessages() {
-    const savedMessages = localStorage.getItem(`chatMessages_${currentUser}`);
-    if (savedMessages) {
-        try {
-            const messages = JSON.parse(savedMessages);
-            messages.forEach(msg => {
-                if (msg.type === 'text') {
-                    addMessage(msg.sender, decrypt(msg.content, encryptionKey), msg.time);
-                } else if (msg.type === 'file') {
-                    addFileMessage(msg.sender, msg.fileName, msg.fileSize, msg.time);
-                } else if (msg.type === 'image') {
-                    addImageMessage(msg.sender, msg.content, msg.time);
+                // Load saved messages
+                loadMessages();
+                
+                // Focus on message input
+                messageInput.focus();
+            } else {
+                alert('Invalid username or password!');
+                passwordInput.value = '';
+            }
+        }
+        
+        function updateUserUI() {
+            // Set avatar
+            userAvatar.textContent = currentUser.charAt(0).toUpperCase();
+            
+            // Update chat title
+            chatTitle.textContent = `Hello, ${currentUser.charAt(0).toUpperCase() + currentUser.slice(1)}`;
+        }
+        
+        // Logout
+        logoutBtn.addEventListener('click', function() {
+            localStorage.removeItem('chatCurrentUser');
+            loginOverlay.style.display = 'flex';
+            usernameInput.value = '';
+            passwordInput.value = '';
+        });
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            
+            // Reset height if empty
+            if (this.value === '') {
+                this.style.height = '45px';
+            }
+        });
+        
+        // Handle sending messages
+        sendBtn.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            
+            if (message !== '') {
+                addMessage(message, currentUser);
+                messageInput.value = '';
+                messageInput.style.height = '45px';
+                saveMessages();
+            }
+        }
+        
+        // Add a message to the chat
+        function addMessage(content, sender, time = new Date(), isFile = false, fileData = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender === currentUser ? 'me' : 'other');
+            
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            
+            // Add sender name for messages from others
+            if (sender !== currentUser) {
+                const senderNameElem = document.createElement('div');
+                senderNameElem.classList.add('sender-name');
+                senderNameElem.textContent = sender.charAt(0).toUpperCase() + sender.slice(1);
+                bubble.appendChild(senderNameElem);
+            }
+            
+            if (isFile) {
+                if (fileData.type.startsWith('image/')) {
+                    // Image file
+                    const img = document.createElement('img');
+                    img.src = fileData.content;
+                    img.alt = fileData.name;
+                    img.classList.add('image-preview');
+                    
+                    img.addEventListener('click', function() {
+                        showImageModal(fileData.content);
+                    });
+                    
+                    bubble.appendChild(img);
+                } else {
+                    // Other file type
+                    const fileMessage = document.createElement('div');
+                    fileMessage.classList.add('file-message');
+                    
+                    const fileIcon = document.createElement('div');
+                    fileIcon.classList.add('file-icon');
+                    fileIcon.textContent = '📄';
+                    
+                    const fileInfo = document.createElement('div');
+                    fileInfo.classList.add('file-info');
+                    
+                    const fileName = document.createElement('div');
+                    fileName.classList.add('file-name');
+                    fileName.textContent = fileData.name;
+                    
+                    const fileSize = document.createElement('div');
+                    fileSize.classList.add('file-size');
+                    fileSize.textContent = fileData.size;
+                    
+                    fileInfo.appendChild(fileName);
+                    fileInfo.appendChild(fileSize);
+                    
+                    fileMessage.appendChild(fileIcon);
+                    fileMessage.appendChild(fileInfo);
+                    
+                    const fileLink = document.createElement('a');
+                    fileLink.href = fileData.content;
+                    fileLink.download = fileData.name;
+                    fileLink.appendChild(fileMessage);
+                    
+                    bubble.appendChild(fileLink);
+                }
+            } else {
+                // Regular text message - handle line breaks and URLs
+                const formattedContent = formatMessage(content);
+                bubble.innerHTML += formattedContent;
+            }
+            
+            messageDiv.appendChild(bubble);
+            
+            const timeElement = document.createElement('div');
+            timeElement.classList.add('time');
+            
+            // Format the time
+            let timeString;
+            if (typeof time === 'string') {
+                timeString = time;
+            } else {
+                const hours = time.getHours().toString().padStart(2, '0');
+                const minutes = time.getMinutes().toString().padStart(2, '0');
+                timeString = `${hours}:${minutes}`;
+            }
+            
+            timeElement.textContent = timeString;
+            messageDiv.appendChild(timeElement);
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Format message text
+        function formatMessage(text) {
+            // Convert line breaks to <br>
+            let formatted = text.replace(/\n/g, '<br>');
+            
+            // Make URLs clickable
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            formatted = formatted.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+            
+            return formatted;
+        }
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+        
+        // Save and load messages
+        function saveMessages() {
+            const messages = [];
+            
+            document.querySelectorAll('.message').forEach(msg => {
+                const sender = msg.classList.contains('me') ? currentUser : 
+                    msg.querySelector('.sender-name') ? 
+                    msg.querySelector('.sender-name').textContent.toLowerCase() : 
+                    (currentUser === 'vishu' ? 'tirup' : 'vishu');
+                
+                const bubble = msg.querySelector('.bubble');
+                const time = msg.querySelector('.time').textContent;
+                
+                // Check if it's a file message
+                const fileLink = bubble.querySelector('a');
+                
+                if (fileLink && (bubble.querySelector('.file-message') || bubble.querySelector('.image-preview'))) {
+                    // It's a file message
+                    let fileData = {
+                        content: fileLink.href,
+                        name: 'File'
+                    };
+                    
+                    if (bubble.querySelector('.image-preview')) {
+                        // Image file
+                        const img = bubble.querySelector('.image-preview');
+                        fileData.type = 'image/';
+                        fileData.name = img.alt;
+                    } else {
+                        // Other file
+                        fileData.type = 'file/';
+                        fileData.name = bubble.querySelector('.file-name').textContent;
+                        fileData.size = bubble.querySelector('.file-size').textContent;
+                    }
+                    
+                    messages.push({
+                        sender,
+                        content: '',
+                        time,
+                        isFile: true,
+                        fileData
+                    });
+                } else {
+                    // Regular text message - need to exclude sender name from content
+                    let content = bubble.innerHTML;
+                    const senderName = bubble.querySelector('.sender-name');
+                    if (senderName) {
+                        content = content.replace(senderName.outerHTML, '');
+                    }
+                    
+                    messages.push({
+                        sender,
+                        content,
+                        time,
+                        isFile: false
+                    });
                 }
             });
-            scrollToBottom();
-        } catch (e) {
-            console.error("Failed to load messages", e);
-        }
-    } else {
-        // Add welcome message for new users
-        const welcomeMsg = "Welcome to Secure Chat! Your messages are end-to-end encrypted.";
-        addMessage('system', welcomeMsg, new Date().toISOString());
-        saveMessages();
-    }
-}
-
-// Save messages to localStorage
-function saveMessages() {
-    const messages = [];
-    const messageElements = messagesContainer.querySelectorAll('.message');
-    
-    messageElements.forEach(el => {
-        const sender = el.classList.contains('me') ? currentUser : el.getAttribute('data-sender');
-        const time = el.querySelector('.message-time').textContent;
-        
-        if (el.querySelector('.file-message')) {
-            // File message
-            const fileName = el.querySelector('.file-name').textContent;
-            const fileSize = el.querySelector('.file-size').textContent;
-            messages.push({
-                type: 'file',
-                sender,
-                fileName,
-                fileSize,
-                time
-            });
-        } else if (el.querySelector('.image-preview')) {
-            // Image message
-            const imgSrc = el.querySelector('.image-preview').src;
-            messages.push({
-                type: 'image',
-                sender,
-                content: imgSrc,
-                time
-            });
-        } else {
-            // Text message
-            const content = el.querySelector('.bubble').textContent;
-            messages.push({
-                type: 'text',
-                sender,
-                content: encrypt(content, encryptionKey),
-                time
-            });
-        }
-    });
-    
-    localStorage.setItem(`chatMessages_${currentUser}`, JSON.stringify(messages));
-}
-
-// Add a text message to the chat
-function addMessage(sender, text, time = new Date().toISOString()) {
-    const isMe = sender === currentUser;
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isMe ? 'me' : 'other'}`;
-    if (!isMe) messageDiv.setAttribute('data-sender', sender);
-    
-    const formattedDate = formatTime(time);
-    
-    messageDiv.innerHTML = `
-        <div class="bubble">${text}</div>
-        <div class="message-info">
-            <span class="sender-name">${isMe ? 'You' : sender}</span>
-            <span class="message-time">${formattedDate}</span>
-        </div>
-    `;
-    
-    // Check if we need to add a date divider
-    addDateDividerIfNeeded(time);
-    
-    messagesContainer.appendChild(messageDiv);
-    scrollToBottom();
-    saveMessages();
-}
-
-// Add a file message
-function addFileMessage(sender, fileName, fileSize, time = new Date().toISOString()) {
-    const isMe = sender === currentUser;
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isMe ? 'me' : 'other'}`;
-    if (!isMe) messageDiv.setAttribute('data-sender', sender);
-    
-    const formattedDate = formatTime(time);
-    
-    messageDiv.innerHTML = `
-        <div class="bubble">
-            <div class="file-message">
-                <div class="file-icon">📄</div>
-                <div class="file-info">
-                    <div class="file-name">${fileName}</div>
-                    <div class="file-size">${fileSize}</div>
-                </div>
-            </div>
-        </div>
-        <div class="message-info">
-            <span class="sender-name">${isMe ? 'You' : sender}</span>
-            <span class="message-time">${formattedDate}</span>
-        </div>
-    `;
-    
-    addDateDividerIfNeeded(time);
-    messagesContainer.appendChild(messageDiv);
-    scrollToBottom();
-    saveMessages();
-}
-
-// Add an image message
-function addImageMessage(sender, imgSrc, time = new Date().toISOString()) {
-    const isMe = sender === currentUser;
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isMe ? 'me' : 'other'}`;
-    if (!isMe) messageDiv.setAttribute('data-sender', sender);
-    
-    const formattedDate = formatTime(time);
-    
-    messageDiv.innerHTML = `
-        <div class="bubble">
-            <img src="${imgSrc}" class="image-preview">
-        </div>
-        <div class="message-info">
-            <span class="sender-name">${isMe ? 'You' : sender}</span>
-            <span class="message-time">${formattedDate}</span>
-        </div>
-    `;
-    
-    addDateDividerIfNeeded(time);
-    messagesContainer.appendChild(messageDiv);
-    
-    // Add click event for image preview
-    const imagePreview = messageDiv.querySelector('.image-preview');
-    imagePreview.addEventListener('click', function() {
-        modalImage.src = this.src;
-        imageModal.style.display = 'flex';
-    });
-    
-    scrollToBottom();
-    saveMessages();
-}
-
-// Add date divider if needed
-function addDateDividerIfNeeded(timeStr) {
-    const date = new Date(timeStr);
-    const dateStr = date.toLocaleDateString();
-    
-    const lastDivider = messagesContainer.querySelector('.date-divider:last-of-type');
-    const lastDividerDate = lastDivider ? lastDivider.getAttribute('data-date') : null;
-    
-    if (!lastDivider || lastDividerDate !== dateStr) {
-        const divider = document.createElement('div');
-        divider.className = 'date-divider';
-        divider.setAttribute('data-date', dateStr);
-        divider.textContent = formatDate(date);
-        messagesContainer.appendChild(divider);
-    }
-}
-
-// Format time to a readable string
-function formatTime(timeStr) {
-    const date = new Date(timeStr);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-// Format date to a readable string
-function formatDate(date) {
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (date.toDateString() === today.toDateString()) {
-        return 'Today';
-    } else if (date.toDateString() === yesterday.toDateString()) {
-        return 'Yesterday';
-    } else {
-        return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-}
-
-// Scroll to bottom of messages
-function scrollToBottom() {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-// Send a message
-function sendMessage() {
-    const text = messageInput.value.trim();
-    if (text) {
-        addMessage(currentUser, text);
-        messageInput.value = '';
-        messageInput.style.height = 'auto';
-        
-        // Simulate another user responding after a delay
-        simulateResponse();
-    }
-}
-
-// Simulate response from other user
-function simulateResponse() {
-    const otherUser = currentUser === 'Vishu' ? 'Tirup' : 'Vishu';
-    
-    // Show typing indicator
-    typingIndicator.style.display = 'block';
-    scrollToBottom();
-    
-    // Random delay between 1-3 seconds
-    const delay = Math.floor(Math.random() * 2000) + 1000;
-    
-    setTimeout(() => {
-        typingIndicator.style.display = 'none';
-        
-        const responses = [
-            "Hey, how's it going?",
-            "Did you finish that project?",
-            "I'm working on the new designs.",
-            "Can we meet later today?",
-            "Thanks for the update!",
-            "Let me check and get back to you.",
-            "That sounds interesting!",
-            "I'll send you the files soon.",
-            "Have you seen the latest report?",
-            "Good idea, let's do that."
-        ];
-        
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        addMessage(otherUser, randomResponse);
-    }, delay);
-}
-
-// Handle sending message on button click
-sendBtn.addEventListener('click', sendMessage);
-
-// Handle sending message on Enter key (without shift)
-messageInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
-
-// Auto-resize textarea
-messageInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-});
-
-// Emoji picker
-emojiBtn.addEventListener('click', function() {
-    emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
-});
-
-// Handle emoji selection
-document.querySelectorAll('.emoji').forEach(emoji => {
-    emoji.addEventListener('click', function() {
-        messageInput.value += this.textContent;
-        messageInput.focus();
-        emojiPicker.style.display = 'none';
-    });
-});
-
-// Close emoji picker when clicking outside
-document.addEventListener('click', function(e) {
-    if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-        emojiPicker.style.display = 'none';
-    }
-});
-
-// File upload
-fileBtn.addEventListener('click', function() {
-    fileInput.click();
-});
-
-fileInput.addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-        const file = this.files[0];
-        
-        // Check if it's an image
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                addImageMessage(currentUser, e.target.result);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // Handle as regular file
-            const size = file.size < 1024 ? file.size + ' B' : 
-                      file.size < 1048576 ? (file.size / 1024).toFixed(1) + ' KB' : 
-                      (file.size / 1048576).toFixed(1) + ' MB';
-                      
-            addFileMessage(currentUser, file.name, size);
+            
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
         }
         
-        // Reset file input
-        this.value = '';
-    }
-});
-
-// Clear chat
-clearChatBtn.addEventListener('click', function() {
-    if (confirm('Are you sure you want to clear all messages?')) {
-        messagesContainer.innerHTML = '';
-        localStorage.removeItem(`chatMessages_${currentUser}`);
+        function loadMessages() {
+            const savedMessages = localStorage.getItem('chatMessages');
+            
+            if (savedMessages) {
+                const messages = JSON.parse(savedMessages);
+                messagesContainer.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    if (msg.isFile) {
+                        addMessage('', msg.sender, msg.time, true, msg.fileData);
+                    } else {
+                        addMessage(msg.content, msg.sender, msg.time, false);
+                    }
+                });
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
         
-        // Add welcome message again
-        const welcomeMsg = "Chat cleared. Your messages are end-to-end encrypted.";
-        addMessage('system', welcomeMsg);
-    }
-});
+        // Clear chat
+        clearChatBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all messages?')) {
+                messagesContainer.innerHTML = '';
+                localStorage.removeItem('chatMessages');
+            }
+        });
 
-// Logout
-logoutBtn.addEventListener('click', function() {
-    loginOverlay.style.display = 'flex';
-    currentUser = '';
-    encryptionKey = '';
-    messagesContainer.innerHTML = '';
-    passwordInput.value = '';
-    accountOptions.forEach(opt => opt.classList.remove('selected'));
-});
+        // Emoji picker
+        emojiBtn.addEventListener('click', function() {
+            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
+        });
+        
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+                emojiPicker.style.display = 'none';
+            }
+        });
+        
+        // Add emoji to message input
+        document.querySelectorAll('.emoji').forEach(function(emoji) {
+            emoji.addEventListener('click', function() {
+                messageInput.value += emoji.textContent;
+                messageInput.focus();
+                
+                // Trigger the input event to resize the textarea
+                const event = new Event('input', { bubbles: true });
+                messageInput.dispatchEvent(event);
+                
+                // Hide emoji picker after selection
+                emojiPicker.style.display = 'none';
+            });
+        });
 
-// Image modal
-closeModal.addEventListener('click', function() {
-    imageModal.style.display = 'none';
-});
-
-imageModal.addEventListener('click', function(e) {
-    if (e.target === imageModal) {
-        imageModal.style.display = 'none';
-    }
-});
-
-// Close image modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && imageModal.style.display === 'flex') {
-        imageModal.style.display = 'none';
-    }
-});
-</script>
+        // File handling
+        fileBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const fileData = {
+                        name: file.name,
+                        size: formatFileSize(file.size),
+                        type: file.type,
+                        content: e.target.result
+                    };
+                    
+                    addMessage('', currentUser, new Date(), true, fileData);
+                    saveMessages();
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            // Reset file input
+            this.value = '';
+        });
+        
+        // Image modal
+        function showImageModal(src) {
+            modalImage.src = src;
+            imageModal.style.display = 'flex';
+        }
+        
+        closeModal.addEventListener('click', function() {
+            imageModal.style.display = 'none';
+        });
+        
+        imageModal.addEventListener('click', function(e) {
+            if (e.target === imageModal) {
+                imageModal.style.display = 'none';
+            }
+        });
+        
+// Check if user is already logged in
+            if (currentUser && users[currentUser]) {
+                loginOverlay.style.display = 'none';
+                updateUserUI();
+                loadMessages();
+            } else {
+                loginOverlay.style.display = 'flex';
+            }
+            
+            // Add some initial messages if the chat is empty
+            setTimeout(() => {
+                if (messagesContainer.children.length === 0) {
+                    if (currentUser === 'vishu') {
+                        addMessage('Hi Vishu! Welcome to our private chat.', 'tirup');
+                    } else if (currentUser === 'tirup') {
+                        addMessage('Hi Tirup! Welcome to our private chat.', 'vishu');
+                    }
+                    saveMessages();
+                }
+            }, 100);
+        });
+    </script>
 </body>
 </html>
