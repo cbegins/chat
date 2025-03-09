@@ -21,7 +21,6 @@
     });
 </script>
 
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SecureChat</title>
@@ -487,7 +486,7 @@
 
         /* Emoji picker */
         .emoji-picker {
-            position: absolute;
+            position: fixed;
             bottom: calc(100% + 10px);
             left: 0;
             background-color: var(--secondary-background);
@@ -1256,6 +1255,7 @@ emojiBtn.addEventListener('click', () => {
     const rect = emojiBtn.getBoundingClientRect();
     emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
     emojiPicker.style.left = `${rect.left}px`;
+    emojiPicker.style.bottom = `${window.innerHeight - rect.top + 10}px`;
 });
 
 // Add emoji to message
