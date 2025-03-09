@@ -422,6 +422,46 @@
             align-self: flex-start;
         }
         
+        .status-indicator {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            padding: 6px 12px;
+            background: rgba(62, 92, 118, 0.9);
+            color: white;
+            text-align: center;
+            font-size: 12px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .status-indicator.active {
+            transform: translateY(0);
+        }
+        
+        .unread-indicator {
+            position: absolute;
+            right: 12px;
+            top: 15px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             #chat-container {
@@ -476,11 +516,13 @@
         <div class="chat-header">
             <h1>Secure Chat</h1>
             <div class="header-controls">
+                <button class="header-btn" id="refresh-btn" title="Refresh Chat">🔄</button>
                 <button class="header-btn" id="clear-chat" title="Clear Chat">🗑️</button>
                 <button class="header-btn" id="logout-btn" title="Logout">📤</button>
             </div>
         </div>
         <div id="messages"></div>
+        <div class="status-indicator" id="status-indicator">New messages available</div>
         <div class="input-area">
             <div class="message-controls">
                 <button class="control-btn" id="file-btn" title="Send File">📎</button>
@@ -517,18 +559,28 @@
         const fileBtn = document.getElementById('file-btn');
         const clearChatBtn = document.getElementById('clear-chat');
         const logoutBtn = document.getElementById('logout-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
         const imageModal = document.getElementById('image-modal');
         const modalImage = document.getElementById('modal-image');
         const closeModal = document.querySelector('.close-modal');
+        const statusIndicator = document.getElementById('status-indicator');
         
         // User variables
         let currentUser = '';
         let currentUserName = '';
+        let lastMessageTimestamp = 0;
+        let autoRefreshInterval;
+        let lastCheckedTimestamp = 0;
+        let isPageActive = true;
+        let unreadCount = 0;
+        
+        // Check for saved login
+        checkSavedLogin();
         
         // Password handling
         const userPasswords = {
-            'Tirup@123': 'You - Tirup',
-            'Vishu@123': 'You - Vishu'
+            'Tirup@123': 'User1',
+            'Vishu@123': 'User2'
         };
         
         passwordSubmit.addEventListener('click', function() {
@@ -547,6 +599,11 @@
             if (userPasswords[enteredPassword]) {
                 currentUser = enteredPassword;
                 currentUserName = userPasswords[enteredPassword];
+                
+                // Save login to localStorage
+                saveLogin(currentUser);
+                
+                // Hide password overlay
                 passwordOverlay.style.display = 'none';
                 
                 // Load saved messages
@@ -554,6 +611,9 @@
                 
                 // Update UI for this user
                 document.querySelector('.chat-header h1').textContent = `Secure Chat (${currentUserName})`;
+                
+                // Setup auto-refresh
+                setupAutoRefresh();
                 
                 // Focus on message input
                 messageInput.focus();
@@ -564,12 +624,33 @@
             }
         }
         
+        function saveLogin(password) {
+            localStorage.setItem('secureChat_login', password);
+        }
+        
+        function checkSavedLogin() {
+            const savedLogin = localStorage.getItem('secureChat_login');
+            
+            if (savedLogin && userPasswords[savedLogin]) {
+                passwordInput.value = savedLogin;
+                checkPassword();
+            }
+        }
+        
         // Handle logout
         logoutBtn.addEventListener('click', function() {
             if (confirm('Are you sure you want to logout?')) {
                 currentUser = '';
                 currentUserName = '';
                 passwordInput.value = '';
+                
+                // Clear saved login
+                localStorage.removeItem('secureChat_login');
+                
+                // Clear auto-refresh
+                clearInterval(autoRefreshInterval);
+                
+                // Show password overlay
                 passwordOverlay.style.display = 'flex';
                 messagesContainer.innerHTML = '';
             }
@@ -596,22 +677,125 @@
             }
         });
         
+        // Setup auto-refresh
+        function setupAutoRefresh() {
+            // Initial load
+            refreshMessages();
+            
+            // Set up interval (check every 3 seconds)
+            autoRefreshInterval = setInterval(refreshMessages, 3000);
+            
+            // Handle visibility change (browser tab focus/blur)
+            document.addEventListener('visibilitychange', function() {
+                isPageActive = !document.hidden;
+                
+                if (isPageActive && unreadCount > 0) {
+                    // User returned to tab, reset unread count
+                    unreadCount = 0;
+                    updatePageTitle();
+                    refreshMessages();
+                }
+            });
+        }
+        
+        // Manual refresh button
+        refreshBtn.addEventListener('click', function() {
+            const btn = this;
+            btn.textContent = '⌛';
+            refreshMessages(true).then(() => {
+                btn.textContent = '🔄';
+            });
+        });
+        
+        // Update page title with unread count
+        function updatePageTitle() {
+            if (unreadCount > 0) {
+                document.title = `(${unreadCount}) Secure Chat`;
+            } else {
+                document.title = 'Secure Chat';
+            }
+        }
+        
+        // Show status indicator for new messages
+        function showStatusIndicator() {
+            statusIndicator.classList.add('active');
+            
+            setTimeout(() => {
+                statusIndicator.classList.remove('active');
+            }, 3000);
+        }
+        
+        // Check for new messages
+        async function refreshMessages(forceRefresh = false) {
+            // Get latest messages timestamp
+            const currentTimestamp = getLatestMessageTimestamp();
+            
+            // If we have new messages or force refresh
+            if (currentTimestamp > lastCheckedTimestamp || forceRefresh) {
+                // Load all messages
+                await loadMessages(true);
+                
+                // Update last checked timestamp
+                lastCheckedTimestamp = currentTimestamp;
+                
+                return true;
+            }
+            
+            return false;
+        }
+        
+        function getLatestMessageTimestamp() {
+            try {
+                const savedMessages = localStorage.getItem('chatMessages');
+                if (!savedMessages) return 0;
+                
+                const messages = JSON.parse(savedMessages);
+                
+                // Find the most recent timestamp
+                let latestTimestamp = 0;
+                
+                messages.forEach(msg => {
+                    const msgTime = msg.timestamp || 0;
+                    if (msgTime > latestTimestamp) {
+                        latestTimestamp = msgTime;
+                    }
+                });
+                
+                return latestTimestamp;
+            } catch (e) {
+                console.error('Error getting latest timestamp:', e);
+                return 0;
+            }
+        }
+        
         function sendMessage() {
             const message = messageInput.value.trim();
             
             if (message !== '') {
-                addMessage(message, 'me', new Date(), false, null, currentUserName);
+                const timestamp = Date.now();
+                addMessage(message, 'me', formatTime(new Date()), false, null, currentUserName, timestamp);
                 messageInput.value = '';
                 messageInput.style.height = '45px';
                 saveMessages();
                 messageInput.focus();
+                
+                // Update timestamp
+                lastMessageTimestamp = timestamp;
             }
         }
         
         // Add a message to the chat
-        function addMessage(content, sender, time = new Date(), isFile = false, fileData = null, userName = '') {
+        function addMessage(content, sender, time = formatTime(new Date()), isFile = false, fileData = null, userName = '', timestamp = Date.now(), skipAnimation = false) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender);
+            
+            // For smoother refreshes
+            if (skipAnimation) {
+                messageDiv.style.animation = 'none';
+            }
+            
+            // Add data attribute for timestamp (helps with refresh logic)
+            messageDiv.dataset.timestamp = timestamp;
             
             if (userName) {
                 const userAvatar = document.createElement('div');
@@ -679,24 +863,22 @@
             
             const timeElement = document.createElement('div');
             timeElement.classList.add('time');
-            
-            // Format the time
-            let timeString;
-            if (typeof time === 'string') {
-                timeString = time;
-            } else {
-                const hours = time.getHours().toString().padStart(2, '0');
-                const minutes = time.getMinutes().toString().padStart(2, '0');
-                timeString = `${hours}:${minutes}`;
-            }
-            
-            timeElement.textContent = timeString;
+            timeElement.textContent = time;
             messageDiv.appendChild(timeElement);
             
             messagesContainer.appendChild(messageDiv);
             
             // Scroll to bottom
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            return messageDiv;
+        }
+        
+        // Format time consistently
+        function formatTime(date) {
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
         }
         
         // Format message text (handle line breaks, URLs, etc)
@@ -728,6 +910,7 @@
                 const time = msg.querySelector('.time').textContent;
                 const userAvatar = msg.querySelector('.user-avatar');
                 const userName = userAvatar ? userAvatar.textContent : '';
+                const timestamp = parseInt(msg.dataset.timestamp) || Date.now();
                 
                 // Check if it's a file message
                 const fileLink = bubble.querySelector('a');
@@ -757,7 +940,8 @@
                         time,
                         isFile: true,
                         fileData,
-                        userName
+                        userName,
+                        timestamp
                     });
                 } else {
                     // Regular text message
@@ -766,7 +950,8 @@
                         content: bubble.innerHTML,
                         time,
                         isFile: false,
-                        userName
+                        userName,
+                        timestamp
                     });
                 }
             });
@@ -774,95 +959,148 @@
             localStorage.setItem('chatMessages', JSON.stringify(messages));
         }
         
-        function loadMessages() {
-            const savedMessages = localStorage.getItem('chatMessages');
-            
-            if (savedMessages) {
-                const messages = JSON.parse(savedMessages);
+        async function loadMessages(checkForNew = false) {
+            return new Promise((resolve) => {
+                const savedMessages = localStorage.getItem('chatMessages');
                 
-                messages.forEach(msg => {
-                    // Determine whether this message is from the current user
-                    let senderType;
+                if (savedMessages) {
+                    const messages = JSON.parse(savedMessages);
                     
-                    if (msg.userName === currentUserName) {
-                        senderType = 'me';
-                    } else {
-                        senderType = 'other';
-                    }
+                    // Sort messages by timestamp for proper ordering
+                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     
-                    if (msg.isFile) {
-                        addMessage('', senderType, msg.time, true, msg.fileData, msg.userName);
-                    } else {
-                        // We're storing the formatted HTML content
-                        const messageDiv = document.createElement('div');
-                        messageDiv.classList.add('message', senderType);
+                    // If checking for new messages, only show ones we haven't seen
+                    if (checkForNew) {
+                        // Get current messages
+                        const currentMessageIds = new Set();
+                        document.querySelectorAll('.message').forEach(el => {
+                            currentMessageIds.add(el.dataset.timestamp);
+                        });
                         
-                        if (msg.userName) {
-                            const userAvatar = document.createElement('div');
-                            userAvatar.classList.add('user-avatar');
-                            userAvatar.textContent = msg.userName;
-                            messageDiv.appendChild(userAvatar);
+                        let hasNewMessages = false;
+                        let newMessagesCount = 0;
+                        
+messages.forEach(msg => {
+                            // Skip messages we already have displayed
+                            if (currentMessageIds.has(String(msg.timestamp))) {
+                                return;
+                            }
+                            
+                            // We found a new message
+                            hasNewMessages = true;
+                            
+                            // If it's not from current user, increase unread count if page not active
+                            if (msg.sender !== 'me' && !isPageActive) {
+                                newMessagesCount++;
+                            }
+                            
+                            // Add the message
+                            addMessage(
+                                msg.content,
+                                msg.sender,
+                                msg.time,
+                                msg.isFile,
+                                msg.fileData,
+                                msg.userName,
+                                msg.timestamp,
+                                true // Skip animation for smoother refresh
+                            );
+                        });
+                        
+                        // Update UI if we have new messages
+                        if (hasNewMessages) {
+                            if (!isPageActive) {
+                                unreadCount += newMessagesCount;
+                                updatePageTitle();
+                            }
+                            
+                            // Show status indicator
+                            if (newMessagesCount > 0) {
+                                showStatusIndicator();
+                            }
+                            
+                            // Scroll to bottom if we're already near the bottom
+                            const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 100;
+                            
+                            if (isNearBottom) {
+                                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                            }
                         }
+                    } else {
+                        // Full load (first time)
+                        messagesContainer.innerHTML = '';
                         
-                        const bubble = document.createElement('div');
-                        bubble.classList.add('bubble');
-                        bubble.innerHTML = msg.content;
+                        messages.forEach(msg => {
+                            addMessage(
+                                msg.content,
+                                msg.sender,
+                                msg.time,
+                                msg.isFile,
+                                msg.fileData,
+                                msg.userName,
+                                msg.timestamp,
+                                true // Skip animation for initial load
+                            );
+                        });
                         
-                        messageDiv.appendChild(bubble);
-                        
-                        const timeElement = document.createElement('div');
-                        timeElement.classList.add('time');
-                        timeElement.textContent = msg.time;
-                        messageDiv.appendChild(timeElement);
-                        
-                        messagesContainer.appendChild(messageDiv);
+                        // Always scroll to bottom on full load
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
                     }
-                });
+                }
                 
-                // Scroll to bottom
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
+                resolve();
+            });
         }
         
-        // Clear chat
-        clearChatBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to clear all messages?')) {
-                messagesContainer.innerHTML = '';
-                localStorage.removeItem('chatMessages');
-            }
-        });
-
-        // File handling
+        // Handle file uploads
         fileBtn.addEventListener('click', function() {
             fileInput.click();
         });
         
-        fileInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            
-            if (file) {
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File is too large. Maximum size is 5MB.');
+                    return;
+                }
+                
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
                     const fileData = {
                         name: file.name,
-                        size: file.size,
                         type: file.type,
+                        size: file.size,
                         content: e.target.result
                     };
                     
-                    addMessage('', 'me', new Date(), true, fileData, currentUserName);
+                    const timestamp = Date.now();
+                    addMessage('', 'me', formatTime(new Date()), true, fileData, currentUserName, timestamp);
                     saveMessages();
+                    
+                    // Update timestamp
+                    lastMessageTimestamp = timestamp;
                 };
                 
                 reader.readAsDataURL(file);
+                
+                // Reset file input
+                this.value = '';
             }
-            
-            // Reset file input
-            this.value = '';
         });
         
-        // Image modal
+        // Clear chat
+        clearChatBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                messagesContainer.innerHTML = '';
+                localStorage.removeItem('chatMessages');
+            }
+        });
+        
+        // Image modal functionality
         function showImageModal(src) {
             modalImage.src = src;
             imageModal.style.display = 'flex';
@@ -878,10 +1116,20 @@
             }
         });
         
-        // Handle escape key for modals
+        // Handle keyboard shortcuts
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
+            // Escape to close modal
+            if (e.key === 'Escape' && imageModal.style.display === 'flex') {
                 imageModal.style.display = 'none';
+            }
+        });
+        
+        // Message input focus on load
+        window.addEventListener('load', function() {
+            if (currentUser) {
+                messageInput.focus();
+            } else {
+                passwordInput.focus();
             }
         });
     </script>
